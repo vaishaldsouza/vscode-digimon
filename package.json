@@ -1,0 +1,52 @@
+{
+  "name": "vscode-digimon",
+  "displayName": "VS Code Digimon",
+  "description": "A Digimon companion for VS Code — your pixel-art buddy while you code!",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": ["Other"],
+  "icon": "media/icon.png",
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "digimon-explorer",
+          "title": "Digimon",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "digimon-explorer": [
+        {
+          "type": "webview",
+          "id": "digimon.viewport",
+          "name": "Digital World"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "vscode-digimon.nextDigimon",
+        "title": "Next Digimon",
+        "category": "Digimon"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "typescript": "^5.0.0"
+  }
+}

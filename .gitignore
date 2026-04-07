@@ -1,0 +1,23 @@
+# Compiled output
+out/
+
+# Dependencies
+node_modules/
+
+# VS Code test artifacts
+.vscode-test/
+
+# Build artifacts
+*.vsix
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local

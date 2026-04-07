@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Digi-orb glyph: outer ring + inner star + core dot -->
+  <circle cx="12" cy="12" r="10" fill="none" stroke="#00ffb4" stroke-width="1.5"/>
+  <circle cx="12" cy="12" r="6" fill="none" stroke="#00ffb4" stroke-width="1"/>
+  <!-- 4-point pixel star -->
+  <rect x="11.25" y="5" width="1.5" height="14" fill="#00ffb4" rx="0.5"/>
+  <rect x="5" y="11.25" width="14" height="1.5" fill="#00ffb4" rx="0.5"/>
+  <!-- Diagonal accents -->
+  <line x1="7.1" y1="7.1" x2="16.9" y2="16.9" stroke="#00ffb4" stroke-width="0.8" stroke-dasharray="2 2"/>
+  <line x1="16.9" y1="7.1" x2="7.1" y2="16.9" stroke="#00ffb4" stroke-width="0.8" stroke-dasharray="2 2"/>
+  <!-- Core -->
+  <circle cx="12" cy="12" r="2" fill="#00ffb4"/>
+</svg>
