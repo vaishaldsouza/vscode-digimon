@@ -1,12 +1,14 @@
 {
   "name": "vscode-digimon",
   "displayName": "VS Code Digimon",
-  "description": "A Digimon companion for VS Code — your pixel-art buddy while you code!",
-  "version": "0.0.1",
+  "description": "Digimon companions for your VS Code — walk, idle, and keep you company while you code!",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.74.0"
   },
-  "categories": ["Other"],
+  "categories": [
+    "Other"
+  ],
   "icon": "media/icon.png",
   "activationEvents": [],
   "main": "./out/extension.js",
@@ -31,22 +33,76 @@
     },
     "commands": [
       {
-        "command": "vscode-digimon.nextDigimon",
-        "title": "Next Digimon",
+        "command": "vscode-digimon.start",
+        "title": "Start Digimon Session",
+        "category": "Digimon"
+      },
+      {
+        "command": "vscode-digimon.spawn",
+        "title": "Spawn Digimon",
+        "category": "Digimon"
+      },
+      {
+        "command": "vscode-digimon.remove-all",
+        "title": "Remove All Digimon",
         "category": "Digimon"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "VS Code Digimon",
+      "properties": {
+        "vscode-digimon.digimonType": {
+          "type": "string",
+          "default": "agumon",
+          "enum": [
+            "agumon",
+            "gabumon",
+            "patamon"
+          ],
+          "enumDescriptions": [
+            "Agumon — fire-breathing Rookie",
+            "Gabumon — ice-blasting wolf-pelt Rookie",
+            "Patamon — adorable flying hamster Rookie"
+          ],
+          "description": "Default Digimon type"
+        },
+        "vscode-digimon.digimonSize": {
+          "type": "string",
+          "default": "medium",
+          "enum": [
+            "small",
+            "medium",
+            "large"
+          ],
+          "enumDescriptions": [
+            "Small (48px)",
+            "Medium (64px)",
+            "Large (96px)"
+          ],
+          "description": "Sprite size"
+        },
+        "vscode-digimon.speedMultiplier": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0.5,
+          "maximum": 3,
+          "description": "Walking speed multiplier (base speed × this value)"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js"
+    "gen-assets": "py scripts/gen_assets.py"
   },
   "devDependencies": {
-    "@types/vscode": "^1.74.0",
     "@types/node": "16.x",
+    "@types/vscode": "^1.74.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "gifwrap": "^0.10.1"
   }
 }
