@@ -8,3 +8,10 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+
+# Node Scripts
+analyze_edge.js
+analyze_gif.js
+fix_gifs.js
+flood_fill_gif.js
+*.zip

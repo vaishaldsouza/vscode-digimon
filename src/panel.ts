@@ -10,6 +10,8 @@ import {
 export class DigimonViewProvider implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
 
+    public activeDigimons: string[] = [];
+
     constructor(private readonly _extensionUri: vscode.Uri) {}
 
     public resolveWebviewView(webviewView: vscode.WebviewView) {
@@ -20,9 +22,18 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
         };
         webviewView.webview.html = this._getHtml(webviewView.webview);
 
+        webviewView.webview.onDidReceiveMessage((msg) => {
+            if (msg.command === 'state-update') {
+                this.activeDigimons = msg.activeDigimons;
+            } else if (msg.command === 'show-error') {
+                vscode.window.showInformationMessage(msg.text);
+            }
+        });
+
         vscode.workspace.onDidChangeConfiguration((e) => {
             if (e.affectsConfiguration('vscode-digimon') && this._view) {
                 this._view.webview.html = this._getHtml(this._view.webview);
+                this.activeDigimons = []; // reset state on reload
             }
         });
     }
@@ -33,7 +44,7 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    public postMessage(message: { command: string }) {
+    public postMessage(message: any) {
         this._view?.webview.postMessage(message);
     }
 
@@ -51,9 +62,14 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
 
         const spriteSize = SPRITE_SIZES[digimonSize];
         const floor      = FLOOR_HEIGHTS[digimonSize];
-        const def        = DIGIMON_DEFS[digimonType];
-
-        const spriteRoot = this._uri(webview, digimonType);
+        const defsJson = JSON.stringify(DIGIMON_DEFS);
+        
+        const uris = {
+            agumon: this._uri(webview, 'agumon'),
+            gabumon: this._uri(webview, 'gabumon'),
+            patamon: this._uri(webview, 'patamon'),
+        };
+        const urisJson = JSON.stringify(uris);
 
         const csp = [
             `default-src 'none'`,
@@ -61,8 +77,6 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
             `style-src 'unsafe-inline'`,
             `script-src 'unsafe-inline'`,
         ].join('; ');
-
-        const phrasesJson = JSON.stringify(def.phrases);
 
         const baseSpeed = digimonSize === 'small' ? 2 : digimonSize === 'large' ? 6 : 4;
         const speed = baseSpeed * speedMult;
@@ -151,14 +165,14 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
 
 <script>
 (function () {
-  const SPRITE_ROOT  = '${spriteRoot}';
+  const vscodeApi = acquireVsCodeApi();
+  const URIS         = ${urisJson};
   const SPRITE_SIZE  = ${spriteSize};
   const SPEED        = ${speed};
-  const PHRASES      = ${phrasesJson};
-  const DIGIMON_NAME = '${def.label}';
+  const DEFS         = ${defsJson};
 
-  function spriteUrl(state) {
-    return SPRITE_ROOT + '/' + state + '.gif';
+  function spriteUrl(type, state) {
+    return URIS[type] + '/' + state + '.gif';
   }
 
   const SEQ = {
@@ -171,8 +185,9 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
     return Math.floor(Math.random() * (max - min)) + min;
   }
 
-  function createDigimon(startLeft) {
+  function createDigimon(startLeft, type) {
     const container = document.getElementById('petsContainer');
+    const def = DEFS[type];
 
     const img = document.createElement('img');
     img.className = 'pet';
@@ -187,7 +202,7 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
     bubble.style.left = startLeft + 'px';
-    bubble.textContent = DIGIMON_NAME + '!';
+    bubble.textContent = def.label + '!';
     container.appendChild(bubble);
 
     let state = 'walkRight';
@@ -195,7 +210,7 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
     let x = startLeft;
 
     function setSprite(s) {
-      img.src = spriteUrl(SEQ[s].sprite);
+      img.src = spriteUrl(type, SEQ[s].sprite);
     }
 
     function transition() {
@@ -225,7 +240,7 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
     }
 
     col.addEventListener('mouseover', () => {
-      bubble.textContent = PHRASES[Math.floor(Math.random() * PHRASES.length)];
+      bubble.textContent = def.phrases[Math.floor(Math.random() * def.phrases.length)];
       bubble.classList.add('visible');
     });
     col.addEventListener('mouseout', () => {
@@ -233,11 +248,28 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
     });
 
     setSprite(state);
-    return { move };
+    
+    function remove() {
+        img.remove();
+        col.remove();
+        bubble.remove();
+    }
+
+    return { type, move, remove };
   }
 
   const digimons = [];
-  digimons.push(createDigimon(20));
+  
+  function syncState() {
+      vscodeApi.postMessage({
+          command: 'state-update',
+          activeDigimons: digimons.map(d => d.type)
+      });
+  }
+
+  // initial default spawn
+  digimons.push(createDigimon(20, '${digimonType}'));
+  syncState();
 
   setInterval(() => {
     digimons.forEach(d => d.move());
@@ -246,14 +278,22 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
   window.addEventListener('message', (event) => {
     const msg = event.data;
     if (msg.command === 'spawn-digimon') {
+      const activeTypes = digimons.map(d => d.type);
+      if (activeTypes.includes(msg.type)) {
+          vscodeApi.postMessage({ command: 'show-error', text: 'You already have a ' + DEFS[msg.type].label + '!'});
+          return;
+      }
       const startX = randInt(20, Math.max(40, window.innerWidth - 80));
-      digimons.push(createDigimon(startX));
+      digimons.push(createDigimon(startX, msg.type));
+      syncState();
     }
-    if (msg.command === 'remove-all') {
-      while (digimons.length > 1) { digimons.pop(); }
-      document.querySelectorAll('.pet, .collision, .bubble').forEach((el, i) => {
-        if (i >= 3) { el.remove(); }
-      });
+    if (msg.command === 'remove-digimon') {
+      const idx = digimons.findIndex(d => d.type === msg.type);
+      if (idx !== -1) {
+          digimons[idx].remove();
+          digimons.splice(idx, 1);
+          syncState();
+      }
     }
   });
 }());

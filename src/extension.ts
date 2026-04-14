@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { DigimonViewProvider } from './panel';
 
+import { DIGIMON_DEFS, DigimonType } from './types';
+
 export function activate(context: vscode.ExtensionContext) {
     const provider = new DigimonViewProvider(context.extensionUri);
 
@@ -9,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.registerWebviewViewProvider('digimon.viewport', provider)
     );
 
-    // Status bar item — same as vscode-pets (shows pet name, opens panel on click)
+    // Status bar item
     const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     statusBar.text = '$(heart) Digimon';
     statusBar.tooltip = 'Open Digimon panel';
@@ -24,14 +26,42 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.executeCommand('digimon.viewport.focus');
         }),
 
-        // Spawn an additional Digimon — same as vscode-pets spawn-pet
-        vscode.commands.registerCommand('vscode-digimon.spawn', () => {
-            provider.postMessage({ command: 'spawn-digimon' });
+        // Spawn a Digimon using QuickPick
+        vscode.commands.registerCommand('vscode-digimon.spawn', async () => {
+            const availableTypes = (Object.keys(DIGIMON_DEFS) as DigimonType[])
+                .filter(type => !provider.activeDigimons.includes(type))
+                .map(type => ({
+                    label: DIGIMON_DEFS[type].label,
+                    type: type
+                }));
+
+            if (availableTypes.length === 0) {
+                vscode.window.showInformationMessage("You already have all available Digimons spawned!");
+                return;
+            }
+
+            const choice = await vscode.window.showQuickPick(availableTypes, { placeHolder: 'Choose a Digimon to summon' });
+            if (choice) {
+                provider.postMessage({ command: 'spawn-digimon', type: choice.type });
+            }
         }),
 
-        // Remove all extras — same as vscode-pets remove-all-pets
-        vscode.commands.registerCommand('vscode-digimon.remove-all', () => {
-            provider.postMessage({ command: 'remove-all' });
+        // Remove a Digimon using QuickPick
+        vscode.commands.registerCommand('vscode-digimon.remove-all', async () => {
+            if (provider.activeDigimons.length === 0) {
+                vscode.window.showInformationMessage("There are no Digimons currently to remove!");
+                return;
+            }
+
+            const activeTypes = provider.activeDigimons.map(type => ({
+                label: DIGIMON_DEFS[type as DigimonType].label,
+                type: type
+            }));
+
+            const choice = await vscode.window.showQuickPick(activeTypes, { placeHolder: 'Which Digimon would you like to remove?' });
+            if (choice) {
+                provider.postMessage({ command: 'remove-digimon', type: choice.type });
+            }
         }),
     );
 }

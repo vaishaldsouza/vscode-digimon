@@ -3,6 +3,12 @@
   "displayName": "VS Code Digimon",
   "description": "Digimon companions for your VS Code — walk, idle, and keep you company while you code!",
   "version": "0.1.0",
+  "publisher": "digi-dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vaishaldsouza/vscode-digimon"
+  },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -13,17 +19,8 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "digimon-explorer",
-          "title": "Digimon",
-          "icon": "media/icon.svg"
-        }
-      ]
-    },
     "views": {
-      "digimon-explorer": [
+      "explorer": [
         {
           "type": "webview",
           "id": "digimon.viewport",
@@ -40,14 +37,30 @@
       {
         "command": "vscode-digimon.spawn",
         "title": "Spawn Digimon",
-        "category": "Digimon"
+        "category": "Digimon",
+        "icon": "$(add)"
       },
       {
         "command": "vscode-digimon.remove-all",
         "title": "Remove All Digimon",
-        "category": "Digimon"
+        "category": "Digimon",
+        "icon": "$(trash)"
       }
     ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "vscode-digimon.spawn",
+          "when": "view == digimon.viewport",
+          "group": "navigation@1"
+        },
+        {
+          "command": "vscode-digimon.remove-all",
+          "when": "view == digimon.viewport",
+          "group": "navigation@2"
+        }
+      ]
+    },
     "configuration": {
       "title": "VS Code Digimon",
       "properties": {
