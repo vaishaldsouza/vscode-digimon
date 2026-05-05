@@ -68,6 +68,7 @@ export class DigimonViewProvider implements vscode.WebviewViewProvider {
             agumon: this._uri(webview, 'agumon'),
             gabumon: this._uri(webview, 'gabumon'),
             patamon: this._uri(webview, 'patamon'),
+            abbadomon: this._uri(webview, 'abbadomon'),
         };
         const urisJson = JSON.stringify(uris);
 

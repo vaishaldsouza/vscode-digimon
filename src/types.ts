@@ -1,4 +1,4 @@
-export type DigimonType = 'agumon' | 'gabumon' | 'patamon';
+export type DigimonType = 'agumon' | 'gabumon' | 'patamon' | 'abbadomon';
 export type DigimonSize = 'small' | 'medium' | 'large';
 
 export const SPRITE_SIZES: Record<DigimonSize, number> = {
@@ -50,6 +50,17 @@ export const DIGIMON_DEFS: Record<DigimonType, DigimonDef> = {
             'Such clean code! ✨',
             'Digivolution ready! 🕊️',
             'Boom Bubble POP! 💥',
+        ],
+    },
+    abbadomon: {
+        type: 'abbadomon',
+        label: 'Abbadomon',
+        phrases: [
+            'Endless Night... 🌑',
+            'Your code is mine! 🕷️',
+            'Dark Matter! 💥',
+            'I see everything... 👀',
+            'The digital world will be ours! 🌐',
         ],
     },
 };

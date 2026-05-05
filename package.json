@@ -1,8 +1,8 @@
 {
   "name": "vscode-digimon",
-  "displayName": "VS Code Digimon",
+  "displayName": "vscode-digimon",
   "description": "Digimon companions for your VS Code — walk, idle, and keep you company while you code!",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "digi-dev",
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
         {
           "type": "webview",
           "id": "digimon.viewport",
-          "name": "Digital World"
+          "name": "VS Code Digimon"
         }
       ]
     },
@@ -70,12 +70,14 @@
           "enum": [
             "agumon",
             "gabumon",
-            "patamon"
+            "patamon",
+            "abbadomon"
           ],
           "enumDescriptions": [
             "Agumon — fire-breathing Rookie",
             "Gabumon — ice-blasting wolf-pelt Rookie",
-            "Patamon — adorable flying hamster Rookie"
+            "Patamon — adorable flying hamster Rookie",
+            "Abbadomon — ultimate darkness and final boss"
           ],
           "description": "Default Digimon type"
         },
